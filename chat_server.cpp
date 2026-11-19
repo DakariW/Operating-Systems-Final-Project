@@ -16,14 +16,14 @@
 pthread_mutex_t counter_mutex = PTHREAD_MUTEX_INITIALIZER;
 int total_connections = 0;
 
-// who is online, fd -> user id
+// new, who is online (fd -> id)
 pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
 std::map<int, int> clients;
 int next_id = 101;
 
 int delay_ms = 0;  // so i have time
 
-// like 11/19/26 4:15 PM
+// new, like 11/19/26 4:15 PM
 std::string timestamp() {
     char buf[32];
     time_t t = time(nullptr);
@@ -31,7 +31,7 @@ std::string timestamp() {
     return buf;
 }
 
-// sends to everyone online
+// new, sends to everyone online
 void broadcast(const std::string& s) {
     pthread_mutex_lock(&list_mutex);
     for (auto& c : clients)
@@ -46,6 +46,7 @@ void* handle_client(void* arg) {
 
     usleep(delay_ms * 1000);
 
+    // new, add to online list
     pthread_mutex_lock(&list_mutex);
     int id = next_id++;
     clients[client_fd] = id;
@@ -71,6 +72,7 @@ void* handle_client(void* arg) {
     return nullptr;
 }
 
+// from multi threaded server lab
 int main(int argc, char* argv[]) {
     int port = 8080;
     if (argc > 1) port = atoi(argv[1]);
@@ -79,7 +81,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     if (argc > 2) delay_ms = atoi(argv[2]);
-    signal(SIGPIPE, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);  // new, closed client won't kill server
 
     // same setup as part 1
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -88,6 +90,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // from file transfer lab
     int opt = 1;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 

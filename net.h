@@ -5,7 +5,7 @@
 
 #define MAX_MSG 1024
 
-// keep calling send() until every byte is sent
+// from file transfer lab, sends every byte
 ssize_t send_all(int sock, const void* buffer, size_t length) {
     const char* p = (const char*)buffer;
     size_t total = 0;
@@ -17,7 +17,7 @@ ssize_t send_all(int sock, const void* buffer, size_t length) {
     return total;
 }
 
-// keep calling recv() until every byte has arrived
+// from file transfer lab, reads every byte
 ssize_t recv_all(int sock, void* buffer, size_t length) {
     char* p = (char*)buffer;
     size_t total = 0;
@@ -30,14 +30,14 @@ ssize_t recv_all(int sock, void* buffer, size_t length) {
     return total;
 }
 
-// sends [4 byte length][text]
+// new, sends [4 byte length][text]
 bool send_msg(int sock, const std::string& s) {
     uint32_t n = htonl(s.size());
     if (send_all(sock, &n, 4) < 0) return false;
     return send_all(sock, s.data(), s.size()) >= 0;
 }
 
-// reads [4 byte length][text]
+// new, reads [4 byte length][text]
 bool recv_msg(int sock, std::string& s) {
     uint32_t n;
     if (recv_all(sock, &n, 4) <= 0) return false;

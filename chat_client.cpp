@@ -11,7 +11,7 @@
 
 int client_fd;
 
-// prints everything the server sends
+// new, prints everything the server sends
 void* receive_loop(void*) {
     std::string msg;
     while (recv_msg(client_fd, msg))
@@ -20,6 +20,7 @@ void* receive_loop(void*) {
     exit(0);
 }
 
+// from echo client lab
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <host> <port>" << std::endl;
@@ -53,11 +54,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // new, receive thread
     pthread_t t;
     pthread_create(&t, nullptr, receive_loop, nullptr);
 
     std::string line;
-    while (std::getline(std::cin, line)) {  // send each line you type
+    while (std::getline(std::cin, line)) {  // new, send each line typed
         if (line == "/quit") break;
         if (!send_msg(client_fd, line)) break;
     }
